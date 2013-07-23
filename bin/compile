@@ -3,17 +3,25 @@
 set -e
 
 # prep
-if [ -d $1/.compile ]; then
-  echo "=====> Running $1/.compile/*.sh"
-  for each in $1/.compile/*.sh; 
+
+# try to get the scripts dir from the environment, default to BUILD/.compile
+if [ -z $HBR_SCRIPTS_DIR ]; then
+  HBR_SCRIPTS_DIR=".compile"
+fi
+
+if [ -d $1/$HBR_SCRIPTS_DIR ]; then
+  echo "=====> Running $1/$HBR_SCRIPTS_DIR/*.sh"
+  for each in $1/$HBR_SCRIPTS_DIR/*.sh; 
   do
-      echo "=====> $each"
-      chmod +x $each
-      $each $1 $2
+    echo "=====> $each"
+    chmod +x $each
+    $each $1 $2
   done
 
-  rm -rf $1/.compile
+  rm -rf $1/$HBR_SCRIPTS_DIR
 fi
+
+# multi
 
 function indent() {
   c='s/^/       /'
@@ -23,7 +31,6 @@ function indent() {
   esac
 }
 
-# multi
 unset GIT_DIR
 
 for BUILDPACK in $(cat $1/.buildpacks); do
